@@ -1,0 +1,8 @@
+TYPO3:
+  Flow:
+    object:
+      includeClasses:
+        "league.flysystem":
+          - 'League\\Flysystem\\Plugin.*'
+        "league.flysystem-sftp":
+          - 'League\\Flysystem\\Sftp\\.*'
