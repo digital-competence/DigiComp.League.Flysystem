@@ -8,7 +8,7 @@
   },
   "autoload": {
     "psr-0": {
-      "DigiComp\\Flysystem": "Classes"
+      "DigiComp\\League\\Flysystem": "Classes"
     }
   },
   "extra": {

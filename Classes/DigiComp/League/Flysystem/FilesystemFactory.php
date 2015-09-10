@@ -1,5 +1,5 @@
 <?php
-namespace DigiComp\Flysystem;
+namespace DigiComp\League\Flysystem;
 
 use Doctrine\ORM\Mapping as ORM;
 use League\Flysystem\AdapterInterface;
