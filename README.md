@@ -17,7 +17,7 @@ And configure it with your Objects.yaml:
 
     AcMe\Package\SourceFilesystemInterface:
       scope: singleton
-      factoryObjectName: DigiComp\Flysystem\FilesystemFactory
+      factoryObjectName: DigiComp\League\Flysystem\FilesystemFactory
       factoryMethodName: create
       arguments:
         1:
@@ -44,3 +44,11 @@ The second parameter is a list of plugins, which should be added to your filesys
 be searched in League\Flysysten\Plugin. If you write something like "AcMe.Package:MyPlugin" the factory will look for an
 plugin named \AcMe\Package\FlysystemPlugin\MyPlugin.
 
+After that you can Flow let inject your Filesystem for you:
+
+    /**
+     * @var AcMe\Package\MyFilesystemInterface
+     * @Flow\Inject
+     */
+     
+And: Don't forget to have a lot of fun.
