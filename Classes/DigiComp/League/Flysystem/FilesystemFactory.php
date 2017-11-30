@@ -14,7 +14,6 @@ use TYPO3\Flow\Reflection\ReflectionService;
  */
 class FilesystemFactory
 {
-
     /**
      * @var ObjectManagerInterface
      * @Flow\Inject
@@ -22,15 +21,16 @@ class FilesystemFactory
     protected $objectManager;
 
     /**
+     * TODO: What to do with local filesystem?
+     *
      * @param array $filesystemAdapter
      * @param array $plugins
-     *
-     * TODO: What to do with local filesystem?
      *
      * @return Filesystem
      * @throws InvalidConfigurationException
      */
-    public function create($filesystemAdapter, $plugins = []) {
+    public function create($filesystemAdapter, $plugins = [])
+    {
         $adapterName = $filesystemAdapter['adapter'];
         unset($filesystemAdapter['adapter']);
 
@@ -67,14 +67,18 @@ class FilesystemFactory
     }
 
     /**
-     * @param ObjectManagerInterface $objectManager
      * @Flow\CompileStatic
+     *
+     * @param ObjectManagerInterface $objectManager
+     *
      * @return array
      */
-    public static function getPlugins($objectManager) {
+    public static function getPlugins($objectManager)
+    {
         /** @var ReflectionService $reflectionService */
         $reflectionService = $objectManager->get('TYPO3\Flow\Reflection\ReflectionService');
         $classNames = $reflectionService->getAllImplementationClassNamesForInterface('League\Flysystem\PluginInterface');
+
         return array_flip($classNames);
     }
 
@@ -86,7 +90,8 @@ class FilesystemFactory
      *
      * @return bool|string
      */
-    protected function resolvePlugin($pluginName) {
+    protected function resolvePlugin($pluginName)
+    {
         $plugins = $this->getPlugins($this->objectManager);
         if (strpos($pluginName, ':') !== FALSE) {
             list($packageName, $packagePluginName) = explode(':', $pluginName);
@@ -97,6 +102,7 @@ class FilesystemFactory
         if ($this->objectManager->isRegistered($possibleClassName) && isset($plugins[$possibleClassName])) {
             return $possibleClassName;
         }
+
         return false;
     }
 }
