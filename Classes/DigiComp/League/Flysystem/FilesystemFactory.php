@@ -1,7 +1,6 @@
 <?php
 namespace DigiComp\League\Flysystem;
 
-use Doctrine\ORM\Mapping as ORM;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
 use TYPO3\Flow\Annotations as Flow;
@@ -31,7 +30,7 @@ class FilesystemFactory
      * @return Filesystem
      * @throws InvalidConfigurationException
      */
-    public function create($filesystemAdapter, $plugins = array()) {
+    public function create($filesystemAdapter, $plugins = []) {
         $adapterName = $filesystemAdapter['adapter'];
         unset($filesystemAdapter['adapter']);
 
