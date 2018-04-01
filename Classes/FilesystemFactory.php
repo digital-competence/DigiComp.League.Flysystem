@@ -4,11 +4,11 @@ namespace DigiComp\League\Flysystem;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
 use League\Flysystem\PluginInterface;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Configuration\Exception\InvalidConfigurationException;
-use TYPO3\Flow\ObjectManagement\ObjectManagerInterface;
-use TYPO3\Flow\Reflection\ObjectAccess;
-use TYPO3\Flow\Reflection\ReflectionService;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
+use Neos\Flow\ObjectManagement\ObjectManagerInterface;
+use Neos\Flow\Reflection\ObjectAccess;
+use Neos\Flow\Reflection\ReflectionService;
 
 /**
  * @Flow\Scope("singleton")
