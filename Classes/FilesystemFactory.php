@@ -46,7 +46,7 @@ class FilesystemFactory
             }
         }
 
-        /** @var AdapterInterface $adapter */
+        /* @var AdapterInterface $adapter */
         $adapter = $class->newInstanceArgs($arguments);
         foreach($filesystemAdapter as $key => $val) {
             if (ObjectAccess::isPropertySettable($adapter, $key)) {
@@ -74,7 +74,7 @@ class FilesystemFactory
      */
     public static function getPlugins($objectManager)
     {
-        /** @var ReflectionService $reflectionService */
+        /* @var ReflectionService $reflectionService */
         $reflectionService = $objectManager->get(ReflectionService::class);
         $classNames = $reflectionService->getAllImplementationClassNamesForInterface(PluginInterface::class);
 
