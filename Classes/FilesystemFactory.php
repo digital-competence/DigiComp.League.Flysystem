@@ -3,11 +3,12 @@ namespace DigiComp\League\Flysystem;
 
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Configuration\Exception\InvalidConfigurationException;
-use TYPO3\Flow\Object\ObjectManagerInterface;
-use TYPO3\Flow\Reflection\ObjectAccess;
-use TYPO3\Flow\Reflection\ReflectionService;
+use League\Flysystem\PluginInterface;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
+use Neos\Flow\ObjectManagement\ObjectManagerInterface;
+use Neos\Flow\Reflection\ReflectionService;
+use Neos\Utility\ObjectAccess;
 
 /**
  * @Flow\Scope("singleton")
@@ -21,8 +22,6 @@ class FilesystemFactory
     protected $objectManager;
 
     /**
-     * TODO: What to do with local filesystem?
-     *
      * @param array $filesystemAdapter
      * @param array $plugins
      *
@@ -42,13 +41,13 @@ class FilesystemFactory
             if (isset($filesystemAdapter[$parameter->getName()])) {
                 $arguments[] = $filesystemAdapter[$parameter->getName()];
                 unset($filesystemAdapter[$parameter->getName()]);
-            } elseif(!$parameter->isOptional()) {
+            } elseif(! $parameter->isOptional()) {
                 throw new InvalidConfigurationException('Missing Parameter of ' . $adapterName . ': ' . $parameter->getName());
             }
         }
-        /** @var AdapterInterface $adapter */
-        $adapter = $class->newInstanceArgs($arguments);
 
+        /* @var AdapterInterface $adapter */
+        $adapter = $class->newInstanceArgs($arguments);
         foreach($filesystemAdapter as $key => $val) {
             if (ObjectAccess::isPropertySettable($adapter, $key)) {
                 ObjectAccess::setProperty($adapter, $key, $val);
@@ -75,16 +74,16 @@ class FilesystemFactory
      */
     public static function getPlugins($objectManager)
     {
-        /** @var ReflectionService $reflectionService */
-        $reflectionService = $objectManager->get('TYPO3\Flow\Reflection\ReflectionService');
-        $classNames = $reflectionService->getAllImplementationClassNamesForInterface('League\Flysystem\PluginInterface');
+        /* @var ReflectionService $reflectionService */
+        $reflectionService = $objectManager->get(ReflectionService::class);
+        $classNames = $reflectionService->getAllImplementationClassNamesForInterface(PluginInterface::class);
 
         return array_flip($classNames);
     }
 
     /**
-     * Searches for plugin classes, resolves Plugins without Package identifier in League\Flysystem
-     * Names like DigiComp.Package:Special are resolved to \DigiComp\Package\FlysystemPlugin\Special
+     * Searches for plugin classes, resolves plugins without package identifier in League\Flysystem\Plugin.
+     * Names like AcMe.Package:MyPlugin are resolved to \AcMe\Package\FlysystemPlugin\MyPlugin.
      *
      * @param string $pluginName
      *
@@ -92,13 +91,14 @@ class FilesystemFactory
      */
     protected function resolvePlugin($pluginName)
     {
-        $plugins = $this->getPlugins($this->objectManager);
-        if (strpos($pluginName, ':') !== FALSE) {
+        if (strpos($pluginName, ':') !== false) {
             list($packageName, $packagePluginName) = explode(':', $pluginName);
             $possibleClassName = sprintf('%s\FlysystemPlugin\%s', str_replace('.', '\\', $packageName), $packagePluginName);
         } else {
             $possibleClassName = sprintf('League\Flysystem\Plugin\%s', $pluginName);
         }
+
+        $plugins = $this->getPlugins($this->objectManager);
         if ($this->objectManager->isRegistered($possibleClassName) && isset($plugins[$possibleClassName])) {
             return $possibleClassName;
         }
