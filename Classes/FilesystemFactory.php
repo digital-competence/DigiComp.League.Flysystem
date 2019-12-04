@@ -41,7 +41,7 @@ class FilesystemFactory
             if (isset($filesystemAdapter[$parameter->getName()])) {
                 $arguments[] = $filesystemAdapter[$parameter->getName()];
                 unset($filesystemAdapter[$parameter->getName()]);
-            } elseif(! $parameter->isOptional()) {
+            } elseif (! $parameter->isOptional()) {
                 throw new InvalidConfigurationException('Missing Parameter of ' . $adapterName . ': ' . $parameter->getName());
             }
         }

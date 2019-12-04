@@ -2,7 +2,7 @@ Neos:
   Flow:
     object:
       includeClasses:
-        "league.flysystem":
+        league.flysystem:
           - 'League\\Flysystem\\Plugin.*'
-        "league.flysystem-sftp":
+        league.flysystem-sftp:
           - 'League\\Flysystem\\Sftp\\.*'
