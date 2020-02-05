@@ -1,4 +1,5 @@
 <?php
+
 namespace DigiComp\League\Flysystem;
 
 use League\Flysystem\AdapterInterface;
@@ -27,6 +28,7 @@ class FilesystemFactory
      *
      * @return Filesystem
      * @throws InvalidConfigurationException
+     * @throws \ReflectionException
      */
     public function create($filesystemAdapter, $plugins = [])
     {
@@ -37,18 +39,20 @@ class FilesystemFactory
         $constructor = $class->getConstructor();
 
         $arguments = [];
-        foreach($constructor->getParameters() as $parameter) {
+        foreach ($constructor->getParameters() as $parameter) {
             if (isset($filesystemAdapter[$parameter->getName()])) {
                 $arguments[] = $filesystemAdapter[$parameter->getName()];
                 unset($filesystemAdapter[$parameter->getName()]);
             } elseif (! $parameter->isOptional()) {
-                throw new InvalidConfigurationException('Missing Parameter of ' . $adapterName . ': ' . $parameter->getName());
+                throw new InvalidConfigurationException(
+                    'Missing Parameter of ' . $adapterName . ': ' . $parameter->getName()
+                );
             }
         }
 
         /* @var AdapterInterface $adapter */
         $adapter = $class->newInstanceArgs($arguments);
-        foreach($filesystemAdapter as $key => $val) {
+        foreach ($filesystemAdapter as $key => $val) {
             if (ObjectAccess::isPropertySettable($adapter, $key)) {
                 ObjectAccess::setProperty($adapter, $key, $val);
             } else {
@@ -57,7 +61,7 @@ class FilesystemFactory
         }
 
         $filesystem = new Filesystem($adapter);
-        foreach($plugins as $plugin) {
+        foreach ($plugins as $plugin) {
             $pluginClass = $this->resolvePlugin($plugin);
             $filesystem->addPlugin(new $pluginClass());
         }
@@ -93,7 +97,11 @@ class FilesystemFactory
     {
         if (strpos($pluginName, ':') !== false) {
             list($packageName, $packagePluginName) = explode(':', $pluginName);
-            $possibleClassName = sprintf('%s\FlysystemPlugin\%s', str_replace('.', '\\', $packageName), $packagePluginName);
+            $possibleClassName = sprintf(
+                '%s\FlysystemPlugin\%s',
+                str_replace('.', '\\', $packageName),
+                $packagePluginName
+            );
         } else {
             $possibleClassName = sprintf('League\Flysystem\Plugin\%s', $pluginName);
         }

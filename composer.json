@@ -4,7 +4,7 @@
     "description": "",
     "require": {
         "league/flysystem": "~1.0",
-        "neos/flow": "~4.3"
+        "neos/flow": "~4.3|~5.3"
     },
     "autoload": {
         "psr-4": {
