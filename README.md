@@ -2,7 +2,7 @@ DigiComp.League.Flysystem
 -------------------------
 
 
-This package contains a factory for the filesystem abstraction layer written by Frank de Jonge. 
+This package contains a factory for the filesystem abstraction layer written by Frank de Jonge.
 See http://flysystem.thephpleague.com/
 
 To use a filesystem in your project, I suggest you create an interface:
