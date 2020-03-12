@@ -25,7 +25,6 @@ class FilesystemFactory
     /**
      * @param array $filesystemAdapter
      * @param array $plugins
-     *
      * @return Filesystem
      * @throws InvalidConfigurationException
      * @throws \ReflectionException
@@ -73,7 +72,6 @@ class FilesystemFactory
      * @Flow\CompileStatic
      *
      * @param ObjectManagerInterface $objectManager
-     *
      * @return array
      */
     public static function getPlugins($objectManager)
@@ -90,7 +88,6 @@ class FilesystemFactory
      * Names like AcMe.Package:MyPlugin are resolved to \AcMe\Package\FlysystemPlugin\MyPlugin.
      *
      * @param string $pluginName
-     *
      * @return bool|string
      */
     protected function resolvePlugin($pluginName)
