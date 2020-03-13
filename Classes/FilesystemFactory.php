@@ -70,7 +70,6 @@ class FilesystemFactory
 
     /**
      * @Flow\CompileStatic
-     *
      * @param ObjectManagerInterface $objectManager
      * @return array
      */
