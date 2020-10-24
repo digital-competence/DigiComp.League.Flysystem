@@ -31,14 +31,19 @@ While your `Settings.yaml` could look like this:
       Package:
         filesystem:
           adapter: 'League\Flysystem\Adapter\Ftp'
+          filesystemConfig:
+            visibility: public
+            disable_asserts: true
           config:
             host: 'digital-competence.de'
             username: 'user'
             password: 'password'
             root: '/path/for/root'
 
-The array used as first parameter for the factory expects an "adapter" - key and all constructor arguments needed for the
-instantiation of the configured adapter. All other keys will be treated as property setters.
+The array used as first parameter for the factory expects an "adapter" and allows a "filesystemConfig" - key and all 
+constructor arguments needed for the instantiation of the configured adapter. 
+
+All other keys will be treated as property setters for the adapter.
 
 The second parameter is a list of plugins, which should be added to your filesystem. Without a package prefix, they will
 be searched in `League\Flysystem\Plugin`. If you write something like `AcMe.Package:MyPlugin` the factory will look for a

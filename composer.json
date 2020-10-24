@@ -5,7 +5,8 @@
     "require": {
         "digicomp/flowobjectresolving": "~1.0",
         "league/flysystem": "~1.0",
-        "neos/flow": "~5.3|~6.3"
+        "neos/flow": "~5.3|~6.3",
+        "php": "^7.2"
     },
     "autoload": {
         "psr-4": {

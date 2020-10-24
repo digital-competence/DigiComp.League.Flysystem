@@ -40,6 +40,9 @@ class FilesystemFactory
         $adapterName = $filesystemAdapter['adapter'];
         unset($filesystemAdapter['adapter']);
 
+        $filesystemConfig = $filesystemAdapter['filesystemConfig'] ?? [];
+        unset($filesystemAdapter['filesystemConfig']);
+
         $class = new \ReflectionClass($adapterName);
         $constructor = $class->getConstructor();
 
@@ -65,10 +68,9 @@ class FilesystemFactory
             }
         }
 
-        $filesystem = new Filesystem($adapter);
+        $filesystem = new Filesystem($adapter, $filesystemConfig);
         foreach ($plugins as $plugin) {
-            $pluginClass = $this->resolvePlugin($plugin);
-            $filesystem->addPlugin(new $pluginClass());
+            $filesystem->addPlugin($this->pluginResolver->create($plugin));
         }
 
         return $filesystem;
