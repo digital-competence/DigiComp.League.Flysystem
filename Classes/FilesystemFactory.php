@@ -2,13 +2,12 @@
 
 namespace DigiComp\League\Flysystem;
 
+use DigiComp\FlowObjectResolving\Exception as ResolvingException;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
-use League\Flysystem\PluginInterface;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
 use Neos\Flow\ObjectManagement\ObjectManagerInterface;
-use Neos\Flow\Reflection\ReflectionService;
 use Neos\Utility\ObjectAccess;
 
 /**
@@ -17,10 +16,16 @@ use Neos\Utility\ObjectAccess;
 class FilesystemFactory
 {
     /**
-     * @var ObjectManagerInterface
      * @Flow\Inject
+     * @var ObjectManagerInterface
      */
     protected $objectManager;
+
+    /**
+     * @Flow\Inject
+     * @var PluginResolver
+     */
+    protected $pluginResolver;
 
     /**
      * @param array $filesystemAdapter
@@ -28,8 +33,9 @@ class FilesystemFactory
      * @return Filesystem
      * @throws InvalidConfigurationException
      * @throws \ReflectionException
+     * @throws ResolvingException
      */
-    public function create($filesystemAdapter, $plugins = [])
+    public function create(array $filesystemAdapter, $plugins = [])
     {
         $adapterName = $filesystemAdapter['adapter'];
         unset($filesystemAdapter['adapter']);
@@ -66,47 +72,5 @@ class FilesystemFactory
         }
 
         return $filesystem;
-    }
-
-    /**
-     * @Flow\CompileStatic
-     * @param ObjectManagerInterface $objectManager
-     * @return array
-     */
-    public static function getPlugins($objectManager)
-    {
-        /* @var ReflectionService $reflectionService */
-        $reflectionService = $objectManager->get(ReflectionService::class);
-        $classNames = $reflectionService->getAllImplementationClassNamesForInterface(PluginInterface::class);
-
-        return array_flip($classNames);
-    }
-
-    /**
-     * Searches for plugin classes, resolves plugins without package identifier in League\Flysystem\Plugin.
-     * Names like AcMe.Package:MyPlugin are resolved to \AcMe\Package\FlysystemPlugin\MyPlugin.
-     *
-     * @param string $pluginName
-     * @return bool|string
-     */
-    protected function resolvePlugin($pluginName)
-    {
-        if (strpos($pluginName, ':') !== false) {
-            list($packageName, $packagePluginName) = explode(':', $pluginName);
-            $possibleClassName = sprintf(
-                '%s\FlysystemPlugin\%s',
-                str_replace('.', '\\', $packageName),
-                $packagePluginName
-            );
-        } else {
-            $possibleClassName = sprintf('League\Flysystem\Plugin\%s', $pluginName);
-        }
-
-        $plugins = $this->getPlugins($this->objectManager);
-        if ($this->objectManager->isRegistered($possibleClassName) && isset($plugins[$possibleClassName])) {
-            return $possibleClassName;
-        }
-
-        return false;
     }
 }
