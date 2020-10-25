@@ -1,7 +1,16 @@
 {
     "name": "digicomp/league-flysystem",
     "type": "neos-package",
-    "description": "",
+    "description": "A factory to create league filesystems in for the Flow framework",
+    "authors": [
+        {
+            "name": "Ferdinand Kuhl",
+            "email": "f.kuhl@digital-competence.de"
+        }
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/digital-competence/DigiComp.League.Flysystem",
+    "keywords": ["Neos", "Flow", "filesystem", "filesystems", "files", "storage"],
     "require": {
         "digicomp/flowobjectresolving": "~1.0",
         "league/flysystem": "~1.0",
