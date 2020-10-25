@@ -1,0 +1,16 @@
+DigiComp:
+  League:
+    Flysystem:
+      testFilesystem:
+        adapter: League\Flysystem\Adapter\Local
+        adapterArguments:
+          root: '%FLOW_PATH_PACKAGES%Application/DigiComp.League.Flysystem'
+        filesystemConfig:
+          visibility: public
+      # @deprecated
+      deprecatedTestFilesystem:
+        adapter: League\Flysystem\Adapter\Local
+        root: '%FLOW_PATH_PACKAGES%Application/DigiComp.League.Flysystem'
+        filesystemConfig:
+          visibility: public
+

@@ -1,0 +1,7 @@
+DigiComp.League.Flysystem.TestingFilesystem:
+  adapter: 'League\Flysystem\Adapter\Local'
+  adapterArguments:
+    root: '%FLOW_PATH_PACKAGES%Application/DigiComp.League.Flysystem'
+  filesystemConfig:
+    visibility: 'public'
+  plugins: ['ListPaths', 'ListFiles']
