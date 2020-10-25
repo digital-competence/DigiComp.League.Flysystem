@@ -2,14 +2,14 @@
 
 namespace DigiComp\League\Flysystem;
 
+use DigiComp\FlowObjectResolving\Exception as ResolvingException;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
-use League\Flysystem\PluginInterface;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
 use Neos\Flow\ObjectManagement\ObjectManagerInterface;
-use Neos\Flow\Reflection\ReflectionService;
 use Neos\Utility\ObjectAccess;
+use Psr\Log\LoggerInterface;
 
 /**
  * @Flow\Scope("singleton")
@@ -17,32 +17,59 @@ use Neos\Utility\ObjectAccess;
 class FilesystemFactory
 {
     /**
-     * @var ObjectManagerInterface
      * @Flow\Inject
+     * @var ObjectManagerInterface
      */
     protected $objectManager;
 
     /**
+     * @Flow\InjectConfiguration(type="Filesystem")
+     * @var array
+     */
+    protected $filesystemConfiguration;
+
+    /**
+     * @Flow\Inject
+     * @var PluginResolver
+     */
+    protected $pluginResolver;
+
+    /**
+     * @Flow\Inject
+     * @var LoggerInterface
+     */
+    protected $systemLogger;
+
+    /**
      * @param array $filesystemAdapter
      * @param array $plugins
-     *
      * @return Filesystem
      * @throws InvalidConfigurationException
      * @throws \ReflectionException
+     * @throws ResolvingException
      */
-    public function create($filesystemAdapter, $plugins = [])
+    public function create(array $filesystemAdapter, $plugins = []): Filesystem
     {
         $adapterName = $filesystemAdapter['adapter'];
-        unset($filesystemAdapter['adapter']);
+        $filesystemConfig = $filesystemAdapter['filesystemConfig'] ?? [];
+
+        if (isset($filesystemAdapter['adapterArguments'])) {
+            $adapterArguments = $filesystemAdapter['adapterArguments'];
+        } else {
+            $this->systemLogger->notice('Not using adapterArguments is deprecated and will be removed in next major');
+            unset($filesystemAdapter['adapter']);
+            unset($filesystemAdapter['filesystemConfig']);
+            $adapterArguments = $filesystemAdapter;
+        }
 
         $class = new \ReflectionClass($adapterName);
         $constructor = $class->getConstructor();
 
         $arguments = [];
         foreach ($constructor->getParameters() as $parameter) {
-            if (isset($filesystemAdapter[$parameter->getName()])) {
-                $arguments[] = $filesystemAdapter[$parameter->getName()];
-                unset($filesystemAdapter[$parameter->getName()]);
+            if (isset($adapterArguments[$parameter->getName()])) {
+                $arguments[] = $adapterArguments[$parameter->getName()];
+                unset($adapterArguments[$parameter->getName()]);
             } elseif (! $parameter->isOptional()) {
                 throw new InvalidConfigurationException(
                     'Missing Parameter of ' . $adapterName . ': ' . $parameter->getName()
@@ -52,7 +79,7 @@ class FilesystemFactory
 
         /* @var AdapterInterface $adapter */
         $adapter = $class->newInstanceArgs($arguments);
-        foreach ($filesystemAdapter as $key => $val) {
+        foreach ($adapterArguments as $key => $val) {
             if (ObjectAccess::isPropertySettable($adapter, $key)) {
                 ObjectAccess::setProperty($adapter, $key, $val);
             } else {
@@ -60,57 +87,30 @@ class FilesystemFactory
             }
         }
 
-        $filesystem = new Filesystem($adapter);
+        $filesystem = new Filesystem($adapter, $filesystemConfig);
         foreach ($plugins as $plugin) {
-            $pluginClass = $this->resolvePlugin($plugin);
-            $filesystem->addPlugin(new $pluginClass());
+            $filesystem->addPlugin($this->pluginResolver->create($plugin));
         }
 
         return $filesystem;
     }
 
     /**
-     * @Flow\CompileStatic
+     * @param string $filesystemName
      *
-     * @param ObjectManagerInterface $objectManager
-     *
-     * @return array
+     * @return Filesystem
+     * @throws InvalidConfigurationException
+     * @throws ResolvingException
+     * @throws \ReflectionException
      */
-    public static function getPlugins($objectManager)
+    public function createNamedFilesystem(string $filesystemName): Filesystem
     {
-        /* @var ReflectionService $reflectionService */
-        $reflectionService = $objectManager->get(ReflectionService::class);
-        $classNames = $reflectionService->getAllImplementationClassNamesForInterface(PluginInterface::class);
-
-        return array_flip($classNames);
-    }
-
-    /**
-     * Searches for plugin classes, resolves plugins without package identifier in League\Flysystem\Plugin.
-     * Names like AcMe.Package:MyPlugin are resolved to \AcMe\Package\FlysystemPlugin\MyPlugin.
-     *
-     * @param string $pluginName
-     *
-     * @return bool|string
-     */
-    protected function resolvePlugin($pluginName)
-    {
-        if (strpos($pluginName, ':') !== false) {
-            list($packageName, $packagePluginName) = explode(':', $pluginName);
-            $possibleClassName = sprintf(
-                '%s\FlysystemPlugin\%s',
-                str_replace('.', '\\', $packageName),
-                $packagePluginName
-            );
-        } else {
-            $possibleClassName = sprintf('League\Flysystem\Plugin\%s', $pluginName);
+        if (! isset($this->filesystemConfiguration[$filesystemName])) {
+            throw new InvalidConfigurationException('Filesystem name "' . $filesystemName . '" is not known', 1603582487);
         }
-
-        $plugins = $this->getPlugins($this->objectManager);
-        if ($this->objectManager->isRegistered($possibleClassName) && isset($plugins[$possibleClassName])) {
-            return $possibleClassName;
-        }
-
-        return false;
+        $configuration = $this->filesystemConfiguration[$filesystemName];
+        $plugins = $configuration['plugins'];
+        unset($configuration['plugins']);
+        return $this->create($configuration, $plugins);
     }
 }

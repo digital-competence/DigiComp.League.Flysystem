@@ -3,8 +3,10 @@
     "type": "neos-package",
     "description": "",
     "require": {
+        "digicomp/flowobjectresolving": "~1.0",
         "league/flysystem": "~1.0",
-        "neos/flow": "~4.3|~5.3"
+        "neos/flow": "~5.3|~6.3",
+        "php": "^7.2"
     },
     "autoload": {
         "psr-4": {
@@ -13,7 +15,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "2.0.x-dev"
+            "dev-develop": "2.1.x-dev"
         },
         "applied-flow-migrations": [
             "Inwebs.Basket-201409170938",
