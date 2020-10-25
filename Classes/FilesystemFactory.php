@@ -51,15 +51,14 @@ class FilesystemFactory
     public function create(array $filesystemAdapter, $plugins = []): Filesystem
     {
         $adapterName = $filesystemAdapter['adapter'];
-        unset($filesystemAdapter['adapter']);
-
         $filesystemConfig = $filesystemAdapter['filesystemConfig'] ?? [];
-        unset($filesystemAdapter['filesystemConfig']);
 
         if (isset($filesystemAdapter['adapterArguments'])) {
             $adapterArguments = $filesystemAdapter['adapterArguments'];
         } else {
             $this->systemLogger->notice('Not using adapterArguments is deprecated and will be removed in next major');
+            unset($filesystemAdapter['adapter']);
+            unset($filesystemAdapter['filesystemConfig']);
             $adapterArguments = $filesystemAdapter;
         }
 
