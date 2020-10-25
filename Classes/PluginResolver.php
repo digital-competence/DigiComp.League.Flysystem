@@ -4,7 +4,6 @@ namespace DigiComp\League\Flysystem;
 
 use DigiComp\FlowObjectResolving\ResolverTrait;
 use League\Flysystem\PluginInterface;
-use Neos\Flow\ObjectManagement\ObjectManagerInterface;
 
 /**
  * @method PluginInterface create(string $pluginName)
@@ -18,18 +17,16 @@ class PluginResolver
         return PluginInterface::class;
     }
 
-    protected static function getManagedNamespace(): string
+    protected function getManagedNamespace(string $packageName = ''): string
     {
+        if ($packageName === static::getDefaultPackageKey()) {
+            return 'Plugin\\';
+        }
         return 'FlysystemPlugin\\';
     }
 
-    protected static function getDefaultPackageKey(ObjectManagerInterface $objectManager): string
+    protected static function getDefaultPackageKey(): string
     {
         return 'league.flysystem';
-    }
-
-    protected static function getDefaultNamespace(): string
-    {
-        return 'Plugin\\';
     }
 }
