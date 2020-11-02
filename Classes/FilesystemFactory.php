@@ -48,7 +48,7 @@ class FilesystemFactory
      * @throws \ReflectionException
      * @throws ResolvingException
      */
-    public function create(array $filesystemAdapter, $plugins = []): Filesystem
+    public function create(array $filesystemAdapter, array $plugins = []): Filesystem
     {
         $adapterName = $filesystemAdapter['adapter'];
         $filesystemConfig = $filesystemAdapter['filesystemConfig'] ?? [];
@@ -109,7 +109,7 @@ class FilesystemFactory
             throw new InvalidConfigurationException('Filesystem name "' . $filesystemName . '" is not known', 1603582487);
         }
         $configuration = $this->filesystemConfiguration[$filesystemName];
-        $plugins = $configuration['plugins'];
+        $plugins = $configuration['plugins'] ?? [];
         unset($configuration['plugins']);
         return $this->create($configuration, $plugins);
     }
